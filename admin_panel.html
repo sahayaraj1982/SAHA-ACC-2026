@@ -2,87 +2,103 @@
 <html lang="ta">
 <head>
     <meta charset="UTF-8">
-    <title>SAHA ADMIN - 2026</title>
+    <title>MASTER ADMIN PRO - 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* எழுத்துக்கள் மற்றும் பெட்டிகள் தெளிவாகத் தெரிய பிரத்யேக ஸ்டைல் */
-        body { background-color: #000; color: #fbbf24; font-family: 'Arial', sans-serif; }
-        .gold-border { border: 3px solid #fbbf24; box-shadow: 0 0 15px #fbbf24; background: #111; }
-        input { 
-            background: #fff !important; /* உள்ளீடு செய்யும் இடம் வெள்ளையாக இருக்கும், அப்போதுதான் எழுத்துக்கள் தெரியும் */
-            color: #000 !important; 
-            font-weight: bold; 
-            padding: 12px; 
-            border-radius: 8px; 
-            width: 100%; 
-            margin-bottom: 15px;
-        }
-        .btn { background: #fbbf24; color: #000; font-weight: bold; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; }
-        table { width: 100%; margin-top: 20px; color: #fff; }
-        th { background: #fbbf24; color: #000; padding: 10px; }
-        td { border: 1px solid #fbbf24; padding: 10px; text-align: center; }
+        body { background: #000; color: #fbbf24; font-family: sans-serif; }
+        .gold-border { border: 2px solid #fbbf24; background: #111; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        input, select { background: #fff; color: #000; padding: 10px; border-radius: 5px; width: 100%; margin-bottom: 10px; font-weight: bold; }
+        .btn { background: #fbbf24; color: #000; font-weight: bold; padding: 10px; border-radius: 5px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; color: #fff; margin-top: 10px; }
+        th, td { border: 1px solid #fbbf24; padding: 10px; text-align: left; }
+        th { background: #fbbf24; color: #000; }
+        .action-btns { display: flex; gap: 5px; }
+        .edit-btn { background: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px; }
+        .del-btn { background: #ef4444; color: white; padding: 5px 10px; border-radius: 4px; }
     </style>
 </head>
-<body class="p-4 flex flex-col items-center">
+<body class="p-4">
+    <div class="max-w-4xl mx-auto">
+        <div class="gold-border">
+            <h2 class="text-xl font-bold text-center mb-4">USER MANAGER</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="uName" placeholder="User Name">
+                <input type="text" id="uPass" placeholder="Password">
+                <input type="text" id="uMob" placeholder="Mobile Number">
+                <input type="date" id="uExp">
+                <select id="uStatus">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+                <button onclick="saveUser()" class="btn">SAVE / UPDATE ✅</button>
+            </div>
+            <button onclick="loadUsers()" class="btn w-full mt-4 bg-gray-700 text-white">REFRESH LIST 👥</button>
+        </div>
 
-    <div class="gold-border p-6 rounded-xl w-full max-w-md">
-        <h1 class="text-2xl font-black text-center mb-6 italic text-yellow-400">ADMIN CONTROL</h1>
-        
-        <label class="block mb-1 font-bold text-yellow-500">USER NAME:</label>
-        <input type="text" id="uName" placeholder="பெயரை அடிக்கவும்">
-
-        <label class="block mb-1 font-bold text-yellow-500">PASSWORD:</label>
-        <input type="text" id="uPass" placeholder="பாஸ்வேர்டு அடிக்கவும்">
-
-        <label class="block mb-1 font-bold text-yellow-500">EXPIRY DATE:</label>
-        <input type="date" id="uExp">
-
-        <button onclick="saveUser()" class="btn mb-4">SAVE / UPDATE ✅</button>
-        <button onclick="loadUsers()" class="btn bg-blue-600 text-white">SHOW ALL USERS 👥</button>
-        
-        <p id="msg" class="text-center mt-4 font-bold text-white"></p>
+        <div id="userTableArea" class="overflow-x-auto"></div>
     </div>
 
-    <div id="userTableArea" class="w-full max-w-2xl mt-8"></div>
-
     <script>
-        // உங்கள் புதிய Apps Script URL-ஐ இங்கே மறக்காமல் போடவும்
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoaD08i0iykclgcvs0umOnxNvU2AY3mX_7YJLqAgveA4FhQHngD38ca9zGO0wRqEzs/exec";
+        const SCRIPT_URL = https://script.google.com/macros/s/AKfycbzG0qwUct5gk4tZdCGPJUeXcJQQit7CgTsNH4ZDS1fkCnUX8NeKjDkxvgxdaNyXnmSn/exec";
 
         function saveUser() {
             const u = document.getElementById("uName").value;
             const p = document.getElementById("uPass").value;
+            const m = document.getElementById("uMob").value;
             const e = document.getElementById("uExp").value;
-            const m = document.getElementById("msg");
+            const s = document.getElementById("uStatus").value;
+            if(!u) return alert("பெயர் கட்டாயம்!");
 
-            if(!u) { alert("பெயர் முக்கியம்!"); return; }
-
-            m.innerText = "வேலை நடக்கிறது...";
-            fetch(`${SCRIPT_URL}?action=saveUser&username=${u}&password=${p}&expiry=${e}`)
-            .then(res => res.text())
-            .then(data => {
-                m.innerText = "வெற்றிகரமாக முடிந்தது! ✅";
-                loadUsers(); // லிஸ்ட்டை உடனே அப்டேட் செய்யும்
-            })
-            .catch(err => m.innerText = "பிழை! URL சரியாக உள்ளதா?");
+            fetch(`${SCRIPT_URL}?action=saveUser&username=${u}&password=${p}&mobile=${m}&expiry=${e}&status=${s}`)
+            .then(() => { alert("அப்டேட் செய்யப்பட்டது!"); loadUsers(); clearInputs(); });
         }
 
         function loadUsers() {
-            const tableArea = document.getElementById("userTableArea");
-            tableArea.innerHTML = "<p class='text-center'>பட்டியல் தயாராகிறது...</p>";
-
             fetch(`${SCRIPT_URL}?action=getUsers`)
             .then(res => res.json())
             .then(data => {
-                let html = `<table><tr><th>Name</th><th>Password</th><th>Expiry</th></tr>`;
-                data.forEach(user => {
-                    html += `<tr><td>${user.name}</td><td>${user.pass}</td><td>${user.expiry}</td></tr>`;
+                let html = `<table><tr><th>User</th><th>Mobile</th><th>Expiry</th><th>Status</th><th>Actions</th></tr>`;
+                data.forEach(u => {
+                    html += `<tr>
+                        <td>${u.name}</td>
+                        <td>${u.mobile}</td>
+                        <td>${u.expiry}</td>
+                        <td>${u.status}</td>
+                        <td class="action-btns">
+                            <button onclick="editMode('${u.name}','${u.pass}','${u.mobile}','${u.expiry}','${u.status}')" class="edit-btn">Edit</button>
+                            <button onclick="deleteUser('${u.name}')" class="del-btn">Del</button>
+                        </td>
+                    </tr>`;
                 });
                 html += `</table>`;
-                tableArea.innerHTML = html;
-            })
-            .catch(err => tableArea.innerHTML = "<p class='text-red-500 text-center'>பட்டியலை எடுக்க முடியவில்லை!</p>");
+                document.getElementById("userTableArea").innerHTML = html;
+            });
         }
+
+        function editMode(name, pass, mobile, expiry, status) {
+            document.getElementById("uName").value = name;
+            document.getElementById("uPass").value = pass;
+            document.getElementById("uMob").value = mobile;
+            document.getElementById("uExp").value = expiry;
+            document.getElementById("uStatus").value = status;
+            window.scrollTo(0,0);
+        }
+
+        function deleteUser(name) {
+            if(confirm(name + "-ஐ நீக்கலாமா?")) {
+                fetch(`${SCRIPT_URL}?action=deleteUser&username=${name}`)
+                .then(() => { alert("நீக்கப்பட்டது!"); loadUsers(); });
+            }
+        }
+
+        function clearInputs() {
+            document.getElementById("uName").value = "";
+            document.getElementById("uPass").value = "";
+            document.getElementById("uMob").value = "";
+            document.getElementById("uExp").value = "";
+        }
+
+        loadUsers();
     </script>
 </body>
 </html>
