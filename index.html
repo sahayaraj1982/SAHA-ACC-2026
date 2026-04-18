@@ -1,55 +1,23 @@
-<!DOCTYPE html>
-<html lang="ta">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAHAYARAJ-2026 | PRO LOGIN</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        #loginOverlay { position: fixed; inset: 0; background: #1a202c; z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .login-box { background: #2d3748; padding: 40px; border-radius: 20px; border: 5px solid #facc15; text-align: center; width: 350px; }
-        .login-box input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-size: 18px; color: black; text-align: center; font-weight: bold; }
-        .login-box button { width: 100%; padding: 15px; background: #f63; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; border-bottom: 5px solid #b32d00; font-size: 18px; }
-        .hidden { display: none !important; }
-    </style>
-</head>
-<body>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfmvkoxaItW_zzdTRvnbxOGL7zVeCqKpw0QSFBTYAJhxivyMMwzoWbr_0HafXb956N/exec";
 
-<div id="loginOverlay">
-    <div class="login-box">
-        <h2 class="text-yellow-400 text-3xl mb-4 italic font-black">SAHAYARAJ-2026</h2>
-        <p class="text-white mb-6 font-bold uppercase tracking-widest">Login Security</p>
-        <input type="text" id="user" placeholder="USERNAME">
-        <input type="password" id="pass" placeholder="PASSWORD">
-        <button onclick="checkLogin()">LOGIN NOW ✅</button>
-    </div>
-</div>
+function checkLogin() {
+    const u = document.getElementById("user").value.trim();
+    const p = document.getElementById("pass").value.trim();
 
-<script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfmvkoxaItW_zzdTRvnbxOGL7zVeCqKpw0QSFBTYAJhxivyMMwzoWbr_0HafXb956N/exec
-    function checkLogin() {
-        const u = document.getElementById("user").value.trim();
-        const p = document.getElementById("pass").value.trim();
-
-        if(!u || !p) { alert("விவரங்களை உள்ளிடவும்!"); return; }
-
-        fetch(`${SCRIPT_URL}?action=login&username=${u}&password=${p}`)
-        .then(res => res.text())
-        .then(data => {
-            if(data.trim() === "success") {
-                sessionStorage.setItem("isAuth", "true");
-                window.location.href = "app.html"; // இங்கேதான் மாற்றம் செய்துள்ளேன்
-            } else {
-                alert("தவறான விவரங்கள்!");
-            }
-        });
-    }
-
-    window.onload = function() {
-        if(sessionStorage.getItem("isAuth") === "true") {
+    fetch(`${SCRIPT_URL}?action=login&username=${u}&password=${p}`)
+    .then(res => res.text())
+    .then(data => {
+        const result = data.trim();
+        if(result === "success") {
+            sessionStorage.setItem("isAuth", "true");
             window.location.href = "app.html";
+        } else if(result === "expired") {
+            alert("❌ உங்கள் காலம் முடிந்துவிட்டது (Expired)!");
+        } else if(result === "invalid") {
+            alert("❌ தவறான யூசர்நேம் அல்லது பாஸ்வேர்டு!");
+        } else {
+            alert("பதில் வரவில்லை: " + result);
         }
-    };
-</script>
-</body>
-</html>
+    })
+    .catch(err => alert("கனெக்ஷன் எர்ரர்: " + err));
+}
