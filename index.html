@@ -6,12 +6,11 @@
     <title>SAHAYARAJ-2026 | PRO LOGIN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; padding: 0; background: #1a202c; font-family: sans-serif; }
+        body { margin: 0; background: #1a202c; font-family: sans-serif; }
         #loginOverlay { position: fixed; inset: 0; background: #1a202c; z-index: 9999; display: flex; justify-content: center; align-items: center; }
         .login-box { background: #2d3748; padding: 40px; border-radius: 20px; border: 5px solid #facc15; text-align: center; width: 350px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .login-box input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-size: 18px; color: black; text-align: center; font-weight: bold; }
-        .login-box button { width: 100%; padding: 15px; background: #f63; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; border-bottom: 5px solid #b32d00; font-size: 18px; transition: 0.2s; }
-        .login-box button:active { border-bottom: none; transform: translateY(5px); }
+        .login-box button { width: 100%; padding: 15px; background: #f63; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; border-bottom: 5px solid #b32d00; font-size: 18px; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -28,7 +27,7 @@
 </div>
 
 <script>
-    // உங்கள் புதிய Google Script URL-ஐ இங்கே மட்டும் மாற்றவும்
+    // உங்கள் லேட்டஸ்ட் URL
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfmvkoxaItW_zzdTRvnbxOGL7zVeCqKpw0QSFBTYAJhxivyMMwzoWbr_0HafXb956N/exec";
 
     function checkLogin() {
@@ -36,18 +35,12 @@
         const p = document.getElementById("pass").value.trim();
         const btn = document.getElementById("loginBtn");
 
-        if(!u || !p) {
-            alert("தயவுசெய்து விபரங்களை உள்ளிடவும்!");
-            return;
-        }
+        if(!u || !p) { alert("விவரங்களை உள்ளிடவும்!"); return; }
 
         btn.innerText = "சரிபார்க்கப்படுகிறது...";
         btn.disabled = true;
 
-        // URL-உடன் யூசர் விவரங்களை இணைத்தல்
-        const finalUrl = `${SCRIPT_URL}?username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`;
-
-        fetch(finalUrl)
+        fetch(`${SCRIPT_URL}?username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`)
         .then(res => res.text())
         .then(data => {
             const result = data.trim();
@@ -55,29 +48,25 @@
                 sessionStorage.setItem("isAuth", "true");
                 window.location.href = "app.html";
             } else if(result === "expired") {
-                alert("❌ உங்கள் காலாவதி தேதி முடிந்துவிட்டது!");
+                alert("❌ உங்கள் காலம் முடிந்துவிட்டது!");
                 btn.innerText = "LOGIN NOW ✅";
                 btn.disabled = false;
             } else {
-                alert("❌ தவறான யூசர்நேம் அல்லது பாஸ்வேர்டு!");
+                alert("❌ தவறான விவரங்கள்!");
                 btn.innerText = "LOGIN NOW ✅";
                 btn.disabled = false;
             }
         })
         .catch(err => {
-            alert("இணையதள இணைப்பு கோளாறு அல்லது சர்வர் பிரச்சனை!");
+            alert("சர்வர் இணைப்பு பிழை!");
             btn.innerText = "LOGIN NOW ✅";
             btn.disabled = false;
         });
     }
 
-    // ஏற்கனவே லாகின் செய்திருந்தால் நேரடியாக ஆப்பிற்குச் செல்ல
     window.onload = function() {
-        if(sessionStorage.getItem("isAuth") === "true") {
-            window.location.href = "app.html";
-        }
+        if(sessionStorage.getItem("isAuth") === "true") window.location.href = "app.html";
     };
 </script>
-
 </body>
 </html>
