@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <title>MASTER ADMIN UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #000; color: #fbbf24; font-family: sans-serif; }
+        .gold-card { background: #111; border: 2px solid #fbbf24; border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        input { background: #222; color: #fff; border: 1px solid #fbbf24; padding: 10px; border-radius: 5px; width: 100%; margin-bottom: 10px; }
+        .btn { background: #fbbf24; color: #000; font-weight: bold; padding: 10px; border-radius: 5px; width: 100%; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #fbbf24; padding: 10px; text-align: left; }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-2xl mx-auto">
+        <h2 class="text-2xl font-black text-center mb-6 italic">ADMIN CONTROL CENTER</h2>
+
+        <div class="gold-card">
+            <h3 class="font-bold mb-4 uppercase">யூசர் உருவாக்க / எடிட் செய்ய</h3>
+            <input type="text" id="uName" placeholder="User Name">
+            <input type="text" id="uPass" placeholder="Password">
+            <input type="date" id="uExp">
+            <button onclick="saveUser()" class="btn">SAVE USER DATA ✅</button>
+        </div>
+
+        <div class="gold-card">
+            <h3 class="font-bold mb-4 uppercase text-center">மொத்த யூசர்கள் பட்டியல்</h3>
+            <button onclick="loadUsers()" class="btn bg-blue-600 text-white mb-4">பட்டியலைப் புதுப்பி (Refresh List)</button>
+            <div id="userTable"></div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "உங்கள்_புதிய_DEPLOY_URL_இங்கே";
+
+        function saveUser() {
+            const u = document.getElementById("uName").value;
+            const p = document.getElementById("uPass").value;
+            const e = document.getElementById("uExp").value;
+            if(!u || !p || !e) { alert("அனைத்தையும் நிரப்பவும்!"); return; }
+
+            fetch(`${SCRIPT_URL}?action=saveUser&username=${u}&password=${p}&expiry=${e}`)
+            .then(() => { alert("வெற்றிகரமாகச் சேமிக்கப்பட்டது!"); loadUsers(); });
+        }
+
+        function loadUsers() {
+            fetch(`${SCRIPT_URL}?action=getUsers`)
+            .then(res => res.json())
+            .then(data => {
+                let html = `<table><tr><th>Name</th><th>Password</th><th>Expiry</th></tr>`;
+                data.forEach(user => {
+                    html += `<tr><td>${user.name}</td><td>${user.pass}</td><td>${user.expiry}</td></tr>`;
+                });
+                html += `</table>`;
+                document.getElementById("userTable").innerHTML = html;
+            });
+        }
+    </script>
+</body>
+</html>
