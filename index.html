@@ -1,10 +1,14 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxSF-0Dy7nw-CZ8cRpU43z3W3dQlPNY9wlqqHCrJhSrUmIEeRBIniD7KW3323HEWQY/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfmvkoxaItW_zzdTRvnbxOGL7zVeCqKpw0QSFBTYAJhxivyMMwzoWbr_0HafXb956N/exec";
 
 function checkLogin() {
     const u = document.getElementById("user").value.trim();
     const p = document.getElementById("pass").value.trim();
 
-    fetch(`${SCRIPT_URL}?action=login&username=${u}&password=${p}`)
+    if(!u || !p) { alert("விவரங்களை உள்ளிடவும்!"); return; }
+
+    // இங்கே தான் நீங்கள் தவறு செய்துள்ளீர்கள். 
+    // ?username= மற்றும் &password= என்பதைச் சரியாகச் சேர்க்க வேண்டும்.
+    fetch(`${SCRIPT_URL}?username=${u}&password=${p}`)
     .then(res => res.text())
     .then(data => {
         const result = data.trim();
