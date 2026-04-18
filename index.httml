@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAHAYARAJ 2026 - LOGIN</title>
+    <style>
+        /* நிறுவன தரத்திலான டிசைன் - 3D பட்டன்கள் மற்றும் கோல்டன் அவுட்லைன் */
+        body { 
+            background: #1a202c; 
+            color: #facc15; 
+            font-family: 'Arial Black', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .login-box { 
+            background: #2d3748; 
+            padding: 40px; 
+            border: 5px solid #54301d; 
+            border-radius: 30px; 
+            box-shadow: 0 0 25px rgba(0,0,0,0.7); 
+            text-align: center; 
+            width: 320px; 
+        }
+        h2 { 
+            font-style: italic; 
+            text-transform: uppercase; 
+            margin-bottom: 20px; 
+            text-shadow: 2px 2px #000;
+        }
+        input { 
+            width: 90%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border-radius: 10px; 
+            border: 2px solid #54301d; 
+            background: #1a202c; 
+            color: white; 
+            text-align: center;
+            font-weight: bold;
+        }
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background: #e32b2b; 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: 900; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            border-bottom: 6px solid #8b1a1a; 
+            text-transform: uppercase;
+        }
+        button:active { 
+            transform: translateY(3px); 
+            border-bottom-width: 3px; 
+        }
+        #status { 
+            font-size: 13px; 
+            margin-top: 15px; 
+            color: #ff4d4d; 
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <h2>SAHAYARAJ-2026</h2>
+    <p style="font-size: 12px; color: #fff; margin-bottom: 10px;">ENTER YOUR CREDENTIALS</p>
+    <input type="text" id="user" placeholder="USER ID">
+    <input type="password" id="pass" placeholder="PASSWORD">
+    <button onclick="login()">LOGIN NOW ✅</button>
+    <p id="status"></p>
+</div>
+
+<script>
+    async function login() {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        const status = document.getElementById('status');
+        
+        if(!u || !p) {
+            status.innerText = "ஐடி மற்றும் பாஸ்வேர்டு தேவை!";
+            return;
+        }
+
+        status.innerText = "சரிபார்க்கப்படுகிறது... காத்திருக்கவும்";
+        status.style.color = "#facc15";
+
+        try {
+            // உங்கள் கூகுள் ஷீட் API லிங்க்
+            const sheetURL = "https://script.google.com/macros/s/AKfycbx8KE2IhOkNo-J5D2j-jgGBqeBQHfad27fYNAPaDFpNbSl-cL8n4Jjv5D9iRTDJkNDL/exec";
+            
+            const response = await fetch(sheetURL);
+            const data = await response.json();
+
+            let found = false;
+            // ஷீட்டில் உள்ள தரவுகளைச் சரிபார்த்தல்
+            for(let i = 1; i < data.length; i++) {
+                if(data[i][0].toString().trim() === u && data[i][1].toString().trim() === p) {
+                    if(data[i][2].toString().trim() === "Active") {
+                        sessionStorage.setItem("isAuth", "true");
+                        sessionStorage.setItem("userName", u);
+                        // லாகின் வெற்றிபெற்றால் app.html-க்கு செல்லும்
+                        window.location.href = "app.html"; 
+                        found = true;
+                        break;
+                    } else {
+                        status.innerText = "கணக்கு முடக்கப்பட்டுள்ளது (Blocked)!";
+                        status.style.color = "red";
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if(!found) {
+                status.innerText = "தவறான ஐடி அல்லது பாஸ்வேர்டு!";
+                status.style.color = "red";
+            }
+        } catch(e) {
+            status.innerText = "இணைய இணைப்பில் கோளாறு! மீண்டும் முயற்சிக்கவும்.";
+            status.style.color = "red";
+            console.error(e);
+        }
+    }
+</script>
+
+</body>
+</html>
