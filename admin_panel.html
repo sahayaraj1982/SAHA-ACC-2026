@@ -5,37 +5,47 @@
     <title>SAHA ADMIN PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #000; color: #fbbf24; font-family: sans-serif; padding: 20px; }
-        .card { background: #111; border: 2px solid #fbbf24; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        input, select { background: #fff; color: #000; padding: 10px; border-radius: 5px; width: 100%; margin-bottom: 10px; font-weight: bold; }
+        body { background: #000; color: #fbbf24; font-family: sans-serif; padding: 10px; }
+        .card { background: #111; border: 2px solid #fbbf24; padding: 15px; border-radius: 12px; }
+        /* எழுத்து கருப்பாக தெரிய வெள்ளை பின்னணி */
+        input, select { 
+            background: #fff !important; 
+            color: #000 !important; 
+            padding: 12px; 
+            border-radius: 8px; 
+            width: 100%; 
+            margin-bottom: 12px; 
+            font-weight: bold;
+            font-size: 16px;
+        }
         .btn { background: #fbbf24; color: #000; font-weight: bold; padding: 12px; border-radius: 8px; width: 100%; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; color: #fff; background: #111; }
-        th, td { border: 1px solid #fbbf24; padding: 10px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; color: #fff; font-size: 13px; }
+        th, td { border: 1px solid #fbbf24; padding: 8px; text-align: left; }
         th { background: #fbbf24; color: #000; }
-        .del-btn { background: #ef4444; color: white; padding: 5px 10px; border-radius: 4px; }
-        .edit-btn { background: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px; margin-right: 5px; }
+        .del-btn { background: #ef4444; color: white; padding: 5px; border-radius: 4px; font-size: 11px; }
+        .edit-btn { background: #3b82f6; color: white; padding: 5px; border-radius: 4px; font-size: 11px; }
     </style>
 </head>
 <body>
-   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <input type="text" id="uName" placeholder="User Name">
-    <input type="text" id="uPass" placeholder="Set Password"> 
-    <input type="text" id="uMob" placeholder="Mobile Number">
-    <input type="date" id="uExp">
-    <select id="uStatus">
-        <option value="Active">Active (ON)</option>
-        <option value="Inactive">Inactive (OFF)</option>
-    </select>
-    <button onclick="saveUser()" class="btn">SAVE / UPDATE ✅</button>
-</div>
-            <button onclick="loadUsers()" class="btn mt-4 bg-gray-700 text-white">REFRESH USER LIST 👥</button>
+    <div class="max-w-2xl mx-auto">
+        <div class="card">
+            <h2 class="text-xl font-bold text-center mb-4">ADMIN MANAGER</h2>
+            <input type="text" id="uName" placeholder="User Name (பெயர்)">
+            <input type="text" id="uPass" placeholder="Password (பாஸ்வேர்டு)">
+            <input type="text" id="uMob" placeholder="Mobile Number (மொபைல்)">
+            <input type="date" id="uExp">
+            <select id="uStatus">
+                <option value="Active">Active (ஆன்)</option>
+                <option value="Inactive">Inactive (ஆஃப்)</option>
+            </select>
+            <button onclick="saveUser()" class="btn">SAVE / UPDATE ✅</button>
+            <button onclick="loadUsers()" class="btn mt-3 bg-gray-700 text-white">REFRESH LIST 👥</button>
         </div>
-
-        <div id="userList" class="overflow-x-auto"></div>
+        <div id="userList" class="overflow-x-auto mt-4"></div>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby1BtuTxZ30IGhyQ1epiFwZIdPGjT9HfmnKGQ4n1IVTDGa8R5Dp2olotKm9DqCm9rAo/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzV7VnpjCzeDWcdaWmknijaogx19n1XMwYjPnNzXaz7hT5sgaehlYGnisMf0d4LjE9I/exec";
 
         function saveUser() {
             const u = document.getElementById("uName").value;
@@ -43,14 +53,14 @@
             const m = document.getElementById("uMob").value;
             const e = document.getElementById("uExp").value;
             const s = document.getElementById("uStatus").value;
-            if(!u) return alert("User Name முக்கியம்!");
+            if(!u) return alert("பெயர் முக்கியம்!");
 
             fetch(`${SCRIPT_URL}?action=saveUser&username=${u}&password=${p}&mobile=${m}&expiry=${e}&status=${s}`)
-            .then(() => { alert("வெற்றி!"); loadUsers(); clearInputs(); });
+            .then(() => { alert("வெற்றி! அப்டேட் ஆனது."); loadUsers(); });
         }
 
         function loadUsers() {
-            document.getElementById("userList").innerHTML = "Loading...";
+            document.getElementById("userList").innerHTML = "காத்திருக்கவும்...";
             fetch(`${SCRIPT_URL}?action=getUsers`)
             .then(res => res.json())
             .then(data => {
@@ -63,39 +73,30 @@
                         <td>${u.status}</td>
                         <td>
                             <button onclick="editMode('${u.name}','${u.pass}','${u.mobile}','${u.expiry}','${u.status}')" class="edit-btn">Edit</button>
-                            <button onclick="deleteUser('${u.name}')" class="del-btn">Delete</button>
+                            <button onclick="deleteUser('${u.name}')" class="del-btn">Del</button>
                         </td>
                     </tr>`;
                 });
                 html += `</table>`;
                 document.getElementById("userList").innerHTML = html;
-            });
+            }).catch(err => { document.getElementById("userList").innerHTML = "சர்வர் பிழை! URL செக் செய்யவும்."; });
         }
 
         function editMode(n, p, m, e, s) {
             document.getElementById("uName").value = n;
             document.getElementById("uPass").value = p;
             document.getElementById("uMob").value = m;
-            document.getElementById("uExp").value = e;
             document.getElementById("uStatus").value = s;
             window.scrollTo(0,0);
         }
 
         function deleteUser(u) {
-            if(confirm(u + "-ஐ நீக்கலாமா?")) {
+            if(confirm(u + "-ஐ நீக்கவா?")) {
                 fetch(`${SCRIPT_URL}?action=deleteUser&username=${u}`)
                 .then(() => { alert("நீக்கப்பட்டது!"); loadUsers(); });
             }
         }
-
-        function clearInputs() {
-            document.getElementById("uName").value = "";
-            document.getElementById("uPass").value = "";
-            document.getElementById("uMob").value = "";
-            document.getElementById("uExp").value = "";
-        }
-
-        loadUsers(); // பக்கம் திறக்கும்போதே லிஸ்டைக் காட்டும்
+        loadUsers();
     </script>
 </body>
 </html>
