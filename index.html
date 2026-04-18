@@ -8,8 +8,8 @@
     <style>
         #loginOverlay { position: fixed; inset: 0; background: #1a202c; z-index: 9999; display: flex; justify-content: center; align-items: center; }
         .login-box { background: #2d3748; padding: 40px; border-radius: 20px; border: 5px solid #facc15; text-align: center; width: 350px; }
-        .login-box input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-size: 18px; color: black; text-align: center; }
-        .login-box button { width: 100%; padding: 15px; background: #f63; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; border-bottom: 5px solid #b32d00; }
+        .login-box input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-size: 18px; color: black; text-align: center; font-weight: bold; }
+        .login-box button { width: 100%; padding: 15px; background: #f63; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; border-bottom: 5px solid #b32d00; font-size: 18px; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -17,68 +17,40 @@
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h2 class="text-yellow-400 text-2xl mb-4 italic">SAHAYARAJ-2026</h2>
-        <p class="text-white mb-4">ENTER YOUR CREDENTIALS</p>
-        <input type="text" id="user" placeholder="Username">
-        <input type="password" id="pass" placeholder="Password">
+        <h2 class="text-yellow-400 text-3xl mb-4 italic font-black">SAHAYARAJ-2026</h2>
+        <p class="text-white mb-6 font-bold uppercase tracking-widest">Login Security</p>
+        <input type="text" id="user" placeholder="USERNAME">
+        <input type="password" id="pass" placeholder="PASSWORD">
         <button onclick="checkLogin()">LOGIN NOW ✅</button>
     </div>
 </div>
 
-<div id="appContainer" class="hidden">
-    <div class="p-10 text-center">
-        <h1 class="text-3xl font-bold text-blue-700">வெற்றிகரமாக லாகின் செய்யப்பட்டது!</h1>
-        <p class="mt-4">உங்கள் மெயின் ஸ்கிரிப்ட் (Accounts Manager) இங்கே செயல்படும்.</p>
-        <button onclick="logout()" class="mt-5 bg-red-600 text-white px-6 py-2 rounded-lg font-bold">LOGOUT 🔓</button>
-    </div>
-</div>
-
 <script>
-    // நீங்கள் கொடுத்த புதிய URL இங்கே இணைக்கப்பட்டுள்ளது
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzaM9_aXzYM88rUfpQlYdGOhWX0bu9Xy-uimU858vbh40TRqN1LIKabo0jNB0ywif65/exec";
 
     function checkLogin() {
-        const u = document.getElementById("user").value;
-        const p = document.getElementById("pass").value;
+        const u = document.getElementById("user").value.trim();
+        const p = document.getElementById("pass").value.trim();
 
-        if(!u || !p) {
-            alert("Username மற்றும் Password உள்ளிடவும்!");
-            return;
-        }
+        if(!u || !p) { alert("விவரங்களை உள்ளிடவும்!"); return; }
 
-        // லாகின் சரிபார்த்தல்
         fetch(`${SCRIPT_URL}?action=login&username=${u}&password=${p}`)
         .then(res => res.text())
         .then(data => {
             if(data.trim() === "success") {
                 sessionStorage.setItem("isAuth", "true");
-                showApp();
+                window.location.href = "app.html"; // இங்கேதான் மாற்றம் செய்துள்ளேன்
             } else {
-                alert("தவறான விவரங்கள்! மீண்டும் முயற்சிக்கவும்.");
+                alert("தவறான விவரங்கள்!");
             }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("இணையதள இணைப்பில் கோளாறு அல்லது URL தவறாக உள்ளது!");
         });
-    }
-
-    function showApp() {
-        document.getElementById("loginOverlay").classList.add("hidden");
-        document.getElementById("appContainer").classList.remove("hidden");
-    }
-
-    function logout() {
-        sessionStorage.clear();
-        location.reload();
     }
 
     window.onload = function() {
         if(sessionStorage.getItem("isAuth") === "true") {
-            showApp();
+            window.location.href = "app.html";
         }
     };
 </script>
-
 </body>
 </html>
