@@ -2,50 +2,75 @@
 <html lang="ta">
 <head>
     <meta charset="UTF-8">
-    <title>MASTER ADMIN UI</title>
+    <title>SAHA ADMIN - 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #000; color: #fbbf24; font-family: sans-serif; }
-        .gold-card { background: #111; border: 2px solid #fbbf24; border-radius: 15px; padding: 20px; margin-bottom: 20px; }
-        input { background: #222; color: #fff; border: 1px solid #fbbf24; padding: 10px; border-radius: 5px; width: 100%; margin-bottom: 10px; }
-        .btn { background: #fbbf24; color: #000; font-weight: bold; padding: 10px; border-radius: 5px; width: 100%; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #fbbf24; padding: 10px; text-align: left; }
+        /* எழுத்துக்கள் மற்றும் பெட்டிகள் தெளிவாகத் தெரிய பிரத்யேக ஸ்டைல் */
+        body { background-color: #000; color: #fbbf24; font-family: 'Arial', sans-serif; }
+        .gold-border { border: 3px solid #fbbf24; box-shadow: 0 0 15px #fbbf24; background: #111; }
+        input { 
+            background: #fff !important; /* உள்ளீடு செய்யும் இடம் வெள்ளையாக இருக்கும், அப்போதுதான் எழுத்துக்கள் தெரியும் */
+            color: #000 !important; 
+            font-weight: bold; 
+            padding: 12px; 
+            border-radius: 8px; 
+            width: 100%; 
+            margin-bottom: 15px;
+        }
+        .btn { background: #fbbf24; color: #000; font-weight: bold; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; }
+        table { width: 100%; margin-top: 20px; color: #fff; }
+        th { background: #fbbf24; color: #000; padding: 10px; }
+        td { border: 1px solid #fbbf24; padding: 10px; text-align: center; }
     </style>
 </head>
-<body class="p-6">
-    <div class="max-w-2xl mx-auto">
-        <h2 class="text-2xl font-black text-center mb-6 italic">ADMIN CONTROL CENTER</h2>
+<body class="p-4 flex flex-col items-center">
 
-        <div class="gold-card">
-            <h3 class="font-bold mb-4 uppercase">யூசர் உருவாக்க / எடிட் செய்ய</h3>
-            <input type="text" id="uName" placeholder="User Name">
-            <input type="text" id="uPass" placeholder="Password">
-            <input type="date" id="uExp">
-            <button onclick="saveUser()" class="btn">SAVE USER DATA ✅</button>
-        </div>
+    <div class="gold-border p-6 rounded-xl w-full max-w-md">
+        <h1 class="text-2xl font-black text-center mb-6 italic text-yellow-400">ADMIN CONTROL</h1>
+        
+        <label class="block mb-1 font-bold text-yellow-500">USER NAME:</label>
+        <input type="text" id="uName" placeholder="பெயரை அடிக்கவும்">
 
-        <div class="gold-card">
-            <h3 class="font-bold mb-4 uppercase text-center">மொத்த யூசர்கள் பட்டியல்</h3>
-            <button onclick="loadUsers()" class="btn bg-blue-600 text-white mb-4">பட்டியலைப் புதுப்பி (Refresh List)</button>
-            <div id="userTable"></div>
-        </div>
+        <label class="block mb-1 font-bold text-yellow-500">PASSWORD:</label>
+        <input type="text" id="uPass" placeholder="பாஸ்வேர்டு அடிக்கவும்">
+
+        <label class="block mb-1 font-bold text-yellow-500">EXPIRY DATE:</label>
+        <input type="date" id="uExp">
+
+        <button onclick="saveUser()" class="btn mb-4">SAVE / UPDATE ✅</button>
+        <button onclick="loadUsers()" class="btn bg-blue-600 text-white">SHOW ALL USERS 👥</button>
+        
+        <p id="msg" class="text-center mt-4 font-bold text-white"></p>
     </div>
 
+    <div id="userTableArea" class="w-full max-w-2xl mt-8"></div>
+
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoaD08i0iykclgcvs0umOnxNvU2AY3mX_7YJLqAgveA4FhQHngD38ca9zGO0wRqEzs/execே";
+        // உங்கள் புதிய Apps Script URL-ஐ இங்கே மறக்காமல் போடவும்
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoaD08i0iykclgcvs0umOnxNvU2AY3mX_7YJLqAgveA4FhQHngD38ca9zGO0wRqEzs/exec";
 
         function saveUser() {
             const u = document.getElementById("uName").value;
             const p = document.getElementById("uPass").value;
             const e = document.getElementById("uExp").value;
-            if(!u || !p || !e) { alert("அனைத்தையும் நிரப்பவும்!"); return; }
+            const m = document.getElementById("msg");
 
+            if(!u) { alert("பெயர் முக்கியம்!"); return; }
+
+            m.innerText = "வேலை நடக்கிறது...";
             fetch(`${SCRIPT_URL}?action=saveUser&username=${u}&password=${p}&expiry=${e}`)
-            .then(() => { alert("வெற்றிகரமாகச் சேமிக்கப்பட்டது!"); loadUsers(); });
+            .then(res => res.text())
+            .then(data => {
+                m.innerText = "வெற்றிகரமாக முடிந்தது! ✅";
+                loadUsers(); // லிஸ்ட்டை உடனே அப்டேட் செய்யும்
+            })
+            .catch(err => m.innerText = "பிழை! URL சரியாக உள்ளதா?");
         }
 
         function loadUsers() {
+            const tableArea = document.getElementById("userTableArea");
+            tableArea.innerHTML = "<p class='text-center'>பட்டியல் தயாராகிறது...</p>";
+
             fetch(`${SCRIPT_URL}?action=getUsers`)
             .then(res => res.json())
             .then(data => {
@@ -54,8 +79,9 @@
                     html += `<tr><td>${user.name}</td><td>${user.pass}</td><td>${user.expiry}</td></tr>`;
                 });
                 html += `</table>`;
-                document.getElementById("userTable").innerHTML = html;
-            });
+                tableArea.innerHTML = html;
+            })
+            .catch(err => tableArea.innerHTML = "<p class='text-red-500 text-center'>பட்டியலை எடுக்க முடியவில்லை!</p>");
         }
     </script>
 </body>
