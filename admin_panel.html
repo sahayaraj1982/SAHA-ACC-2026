@@ -1,76 +1,99 @@
 <!DOCTYPE html>
-<html lang="ta">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>ADMIN CONTROL</title>
     <style>
-        body { background: #000; color: #fbbf24; font-family: sans-serif; padding: 15px; }
-        .box { background: #111; border: 2px solid #fbbf24; padding: 20px; border-radius: 10px; max-width: 450px; margin: auto; }
-        label { display: block; margin-top: 10px; font-weight: bold; }
-        /* எழுத்து கருப்பாகத் தெரிய முக்கியமான பகுதி */
+        body { background: #fff; color: #000; font-family: sans-serif; padding: 20px; }
         input, select { 
-            width: 100%; padding: 12px; margin-top: 5px; 
-            border-radius: 5px; border: none; font-size: 16px; 
-            background: #fff !important; color: #000 !important; font-weight: bold;
+            width: 100%; padding: 10px; margin: 10px 0; 
+            border: 2px solid #000; background: #fff !important; color: #000 !important; 
+            font-weight: bold; font-size: 16px;
         }
-        .btn { background: #fbbf24; color: #000; padding: 15px; width: 100%; border: none; border-radius: 5px; cursor: pointer; margin-top: 15px; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-        th, td { border: 1px solid #fbbf24; padding: 10px; text-align: left; }
-        th { background: #fbbf24; color: #000; }
-        .del-btn { background: #ef4444; color: #fff; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        button { background: #000; color: #fff; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 10px; text-align: left; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2 style="text-align: center;">SAHA ADMIN MANAGER</h2>
-        <label>User ID:</label>
-        <input type="text" id="uName" placeholder="பெயர்">
-        <label>Password:</label>
-        <input type="text" id="uPass" placeholder="பாஸ்வேர்டு">
-        <label>Mobile:</label>
-        <input type="text" id="uMob" placeholder="மொபைல் எண்">
-        <label>Expiry Date:</label>
-        <input type="date" id="uExp">
-        <label>Status:</label>
-        <select id="uStatus">
-            <option value="Active">Active (ஆன்)</option>
-            <option value="Inactive">Inactive (ஆஃப்)</option>
-        </select>
-        <button onclick="saveUser()" class="btn">SAVE / UPDATE ✅</button>
-        <button onclick="loadUsers()" class="btn" style="background: #444; color: #fff;">REFRESH LIST 👥</button>
-    </div>
-    <div id="list" style="margin-top: 20px;"></div>
+    <h2>USER ADMIN</h2>
+    <input type="text" id="uName" placeholder="USER ID">
+    <input type="text" id="uPass" placeholder="PASSWORD">
+    <input type="text" id="uMob" placeholder="MOBILE">
+    <input type="date" id="uExp">
+    <select id="uStatus">
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+    </select>
+    <button onclick="saveUser()">SAVE ✅</button>
+    <button onclick="loadUsers()" style="margin-top:10px; background:#444;">SHOW LIST</button>
+    <div id="res"></div>
+
+    <script>
+        const SCRIPT_URL = "<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { background: #fff; color: #000; font-family: sans-serif; padding: 20px; }
+        input, select { 
+            width: 100%; padding: 10px; margin: 10px 0; 
+            border: 2px solid #000; background: #fff !important; color: #000 !important; 
+            font-weight: bold; font-size: 16px;
+        }
+        button { background: #000; color: #fff; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 10px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h2>USER ADMIN</h2>
+    <input type="text" id="uName" placeholder="USER ID">
+    <input type="text" id="uPass" placeholder="PASSWORD">
+    <input type="text" id="uMob" placeholder="MOBILE">
+    <input type="date" id="uExp">
+    <select id="uStatus">
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+    </select>
+    <button onclick="saveUser()">SAVE ✅</button>
+    <button onclick="loadUsers()" style="margin-top:10px; background:#444;">SHOW LIST</button>
+    <div id="res"></div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxbt9sTfWsKAGr6p0Egdq0QqUvF_7hz2gVMckNryg16tR0ht3WPP7687QeSyUj1sFOD/exec";
-
         function saveUser() {
             const u = document.getElementById("uName").value;
             const p = document.getElementById("uPass").value;
             const m = document.getElementById("uMob").value;
             const e = document.getElementById("uExp").value;
             const s = document.getElementById("uStatus").value;
-            if(!u) return alert("பெயர் முக்கியம்!");
-
             fetch(`${SCRIPT_URL}?action=saveUser&username=${u}&password=${p}&mobile=${m}&expiry=${e}&status=${s}`)
-            .then(() => { alert("வெற்றி!"); loadUsers(); });
+            .then(() => { alert("Saved!"); loadUsers(); });
         }
-
         function loadUsers() {
-            document.getElementById("list").innerHTML = "Loading...";
-            fetch(`${SCRIPT_URL}?action=getUsers`)
-            .then(res => res.json())
-            .then(data => {
-                let html = `<table><tr><th>User</th><th>Exp</th><th>Status</th><th>Action</th></tr>`;
-                data.forEach(u => {
-                    html += `<tr><td>${u.name}</td><td>${u.expiry}</td><td>${u.status}</td><td><button class="del-btn" onclick="deleteUser('${u.name}')">Del</button></td></tr>`;
-                });
-                html += `</table>`;
-                document.getElementById("list").innerHTML = html;
+            fetch(`${SCRIPT_URL}?action=getUsers`).then(res => res.json()).then(data => {
+                let h = `<table><tr><th>ID</th><th>EXP</th><th>STATUS</th></tr>`;
+                data.forEach(x => { h += `<tr><td>${x.name}</td><td>${x.expiry}</td><td>${x.status}</td></tr>`; });
+                document.getElementById("res").innerHTML = h + `</table>`;
             });
         }
-        function deleteUser(n) { if(confirm(n+" நீக்கவா?")) fetch(`${SCRIPT_URL}?action=deleteUser&username=${n}`).then(()=>loadUsers()); }
-        loadUsers();
+    </script>
+</body>
+</html>";
+        function saveUser() {
+            const u = document.getElementById("uName").value;
+            const p = document.getElementById("uPass").value;
+            const m = document.getElementById("uMob").value;
+            const e = document.getElementById("uExp").value;
+            const s = document.getElementById("uStatus").value;
+            fetch(`${SCRIPT_URL}?action=saveUser&username=${u}&password=${p}&mobile=${m}&expiry=${e}&status=${s}`)
+            .then(() => { alert("Saved!"); loadUsers(); });
+        }
+        function loadUsers() {
+            fetch(`${SCRIPT_URL}?action=getUsers`).then(res => res.json()).then(data => {
+                let h = `<table><tr><th>ID</th><th>EXP</th><th>STATUS</th></tr>`;
+                data.forEach(x => { h += `<tr><td>${x.name}</td><td>${x.expiry}</td><td>${x.status}</td></tr>`; });
+                document.getElementById("res").innerHTML = h + `</table>`;
+            });
+        }
     </script>
 </body>
 </html>
