@@ -1,61 +1,96 @@
 <!DOCTYPE html>
 <html lang="ta">
 <head>
-    <meta charset="UTF-8">
-    <title>SAHA ADMIN PANEL</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; }
-        .gold-border { border: 2px solid #fbbf24; box-shadow: 0 0 15px #fbbf24; }
-        .card { background: #1e293b; border-radius: 15px; transition: 0.3s; }
-        .card:hover { transform: scale(1.02); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAHA ADMIN PANEL</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+    background: linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+    font-family:sans-serif;
+}
+.gold-border{
+    border:2px solid #fbbf24;
+    box-shadow:0 0 15px #fbbf24;
+}
+.card{
+    background:#1e293b;
+    border-radius:15px;
+    transition:0.3s;
+}
+.card:hover{
+    transform:scale(1.02);
+}
+</style>
 </head>
 <body class="p-5">
-    <div class="max-w-md mx-auto">
-        <h1 class="text-3xl font-black text-yellow-400 text-center mb-8 italic">ADMIN DASHBOARD</h1>
-        
-        <div id="userList" class="space-y-4">
-            <p class="text-center">தகவல்கள் சேகரிக்கப்படுகிறது...</p>
-        </div>
+
+<div class="max-w-md mx-auto">
+    <h1 class="text-3xl font-black text-yellow-400 text-center mb-8 italic">
+        ADMIN DASHBOARD
+    </h1>
+
+    <div id="userList" class="space-y-4">
+        <p class="text-center">தகவல்கள் சேகரிக்கப்படுகிறது...</p>
     </div>
+</div>
 
-    <script>
-        const SCRIPT_URL = "உங்கள்_புதிய_URL_இங்கே";
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUpYObmYGUScSqoYfFmUlOevY3FGWTBEWT4zsqinOoC-R62HRz95sgK5WDc6qITjxr/exec";
 
-        // யூசர் பட்டியலைத் திரையில் காட்ட
-        function loadUsers() {
-            fetch(`${SCRIPT_URL}?action=getUserList`)
-            .then(res => res.json())
-            .then(data => {
-                const container = document.getElementById("userList");
-                container.innerHTML = "";
-                data.forEach(user => {
-                    const date = new Date(user.expiry).toISOString().split('T')[0];
-                    container.innerHTML += `
-                        <div class="card p-4 gold-border">
-                            <h3 class="font-bold text-xl text-yellow-500">${user.name}</h3>
-                            <p class="text-sm mb-2">தற்போதைய எக்ஸ்பயரி: ${date}</p>
-                            <input type="date" id="date-${user.name}" value="${date}" class="w-full p-2 rounded text-black mb-2">
-                            <button onclick="updateDate('${user.name}')" class="w-full bg-green-600 p-2 rounded font-bold">UPDATE DATE</button>
-                        </div>
-                    `;
-                });
-            });
+function loadUsers() {
+    fetch(`${SCRIPT_URL}?action=getUsers`)
+    .then(res => res.json())
+    .then(data => {
+        const container = document.getElementById("userList");
+        container.innerHTML = "";
+
+        data.forEach(user => {
+            let date = "";
+            if(user.expiry){
+                date = new Date(user.expiry).toISOString().split('T')[0];
+            }
+
+            container.innerHTML += `
+                <div class="card p-4 gold-border">
+                    <h3 class="font-bold text-xl text-yellow-400">${user.name}</h3>
+                    <p class="text-sm mb-2">தற்போதைய எக்ஸ்பயரி: ${date}</p>
+                    <input type="date" id="date-${user.name}" value="${date}" class="w-full p-2 rounded text-black mb-2">
+                    <button onclick="updateDate('${user.name}')" class="w-full bg-green-600 p-2 rounded font-bold hover:bg-green-700">
+                        UPDATE DATE
+                    </button>
+                </div>
+            `;
+        });
+    })
+    .catch(err => {
+        alert("Load Error: " + err);
+    });
+}
+
+function updateDate(username){
+    const newDate = document.getElementById(`date-${username}`).value;
+
+    fetch(`${SCRIPT_URL}?action=updateExpiry&username=${encodeURIComponent(username)}&expiry=${encodeURIComponent(newDate)}`)
+    .then(res => res.text())
+    .then(result => {
+        if(result === "success"){
+            alert(username + " expiry updated");
+            loadUsers();
+        } else {
+            alert("Update failed");
         }
+    })
+    .catch(err => {
+        alert("Update Error: " + err);
+    });
+}
 
-        // தேதியை அப்டேட் செய்ய
-        function updateDate(username) {
-            const newDate = document.getElementById(`date-${username}`).value;
-            fetch(`${SCRIPT_URL}?action=updateExpiry&username=${username}&expiry=${newDate}`)
-            .then(res => res.text())
-            .then(result => {
-                if(result === "success") alert(username + " எக்ஸ்பயரி மாற்றப்பட்டது!");
-                else alert("பிழை ஏற்பட்டது!");
-            });
-        }
+window.onload = loadUsers;
+</script>
 
-        window.onload = loadUsers;
-    </script>
 </body>
 </html>
