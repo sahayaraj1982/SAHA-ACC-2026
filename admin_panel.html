@@ -1,64 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <style>
-        body { background: #fff; color: #000; font-family: sans-serif; padding: 20px; }
+        /* எழுத்து கருப்பாக தெரிய வெள்ளை பின்னணி */
+        body { background-color: #ffffff; color: #000000; font-family: sans-serif; padding: 20px; }
+        .box { border: 2px solid #000; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; }
         input, select { 
-            width: 100%; padding: 10px; margin: 10px 0; 
-            border: 2px solid #000; background: #fff !important; color: #000 !important; 
-            font-weight: bold; font-size: 16px;
+            width: 100%; padding: 12px; margin-top: 10px; 
+            border: 1px solid #000; border-radius: 5px; 
+            background: #fff !important; color: #000 !important; /* கறுப்பு எழுத்து */
+            font-size: 16px; font-weight: bold;
         }
-        button { background: #000; color: #fff; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #000; padding: 10px; text-align: left; }
+        button { background: #000; color: #fff; padding: 15px; width: 100%; border: none; border-radius: 5px; cursor: pointer; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h2>USER ADMIN</h2>
-    <input type="text" id="uName" placeholder="USER ID">
-    <input type="text" id="uPass" placeholder="PASSWORD">
-    <input type="text" id="uMob" placeholder="MOBILE">
-    <input type="date" id="uExp">
-    <select id="uStatus">
-        <option value="Active">Active</option>
-        <option value="Inactive">Inactive</option>
-    </select>
-    <button onclick="saveUser()">SAVE ✅</button>
-    <button onclick="loadUsers()" style="margin-top:10px; background:#444;">SHOW LIST</button>
-    <div id="res"></div>
+    <div class="box">
+        <h2 style="text-align: center;">SAHA ADMIN PANEL</h2>
+        <input type="text" id="uName" placeholder="User ID">
+        <input type="text" id="uPass" placeholder="Password">
+        <input type="text" id="uMob" placeholder="Mobile">
+        <input type="date" id="uExp">
+        <select id="uStatus">
+            <option value="Active">Active (ON)</option>
+            <option value="Inactive">Inactive (OFF)</option>
+        </select>
+        <button onclick="saveUser()">SAVE ✅</button>
+        <button onclick="loadUsers()" style="background: #555;">SHOW LIST 👥</button>
+    </div>
+    <div id="res" style="margin-top: 20px;"></div>
 
     <script>
-        const SCRIPT_URL = "<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body { background: #fff; color: #000; font-family: sans-serif; padding: 20px; }
-        input, select { 
-            width: 100%; padding: 10px; margin: 10px 0; 
-            border: 2px solid #000; background: #fff !important; color: #000 !important; 
-            font-weight: bold; font-size: 16px;
-        }
-        button { background: #000; color: #fff; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #000; padding: 10px; text-align: left; }
-    </style>
-</head>
-<body>
-    <h2>USER ADMIN</h2>
-    <input type="text" id="uName" placeholder="USER ID">
-    <input type="text" id="uPass" placeholder="PASSWORD">
-    <input type="text" id="uMob" placeholder="MOBILE">
-    <input type="date" id="uExp">
-    <select id="uStatus">
-        <option value="Active">Active</option>
-        <option value="Inactive">Inactive</option>
-    </select>
-    <button onclick="saveUser()">SAVE ✅</button>
-    <button onclick="loadUsers()" style="margin-top:10px; background:#444;">SHOW LIST</button>
-    <div id="res"></div>
-
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxbt9sTfWsKAGr6p0Egdq0QqUvF_7hz2gVMckNryg16tR0ht3WPP7687QeSyUj1sFOD/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz65zJYZZlHYlgp-9ojlB5s54Pluj111LT-pKfSbx4FpvBuIC6fahTzYW_WdbeQ3M9L/exec";
         function saveUser() {
             const u = document.getElementById("uName").value;
             const p = document.getElementById("uPass").value;
@@ -70,29 +44,10 @@
         }
         function loadUsers() {
             fetch(`${SCRIPT_URL}?action=getUsers`).then(res => res.json()).then(data => {
-                let h = `<table><tr><th>ID</th><th>EXP</th><th>STATUS</th></tr>`;
-                data.forEach(x => { h += `<tr><td>${x.name}</td><td>${x.expiry}</td><td>${x.status}</td></tr>`; });
+                let h = `<table border="1" style="width:100%; border-collapse: collapse; margin-top:10px;"><tr><th>ID</th><th>EXP</th></tr>`;
+                data.forEach(x => { h += `<tr><td>${x.name}</td><td>${x.expiry}</td></tr>`; });
                 document.getElementById("res").innerHTML = h + `</table>`;
-            });
-        }
-    </script>
-</body>
-</html>";
-        function saveUser() {
-            const u = document.getElementById("uName").value;
-            const p = document.getElementById("uPass").value;
-            const m = document.getElementById("uMob").value;
-            const e = document.getElementById("uExp").value;
-            const s = document.getElementById("uStatus").value;
-            fetch(`${SCRIPT_URL}?action=saveUser&username=${u}&password=${p}&mobile=${m}&expiry=${e}&status=${s}`)
-            .then(() => { alert("Saved!"); loadUsers(); });
-        }
-        function loadUsers() {
-            fetch(`${SCRIPT_URL}?action=getUsers`).then(res => res.json()).then(data => {
-                let h = `<table><tr><th>ID</th><th>EXP</th><th>STATUS</th></tr>`;
-                data.forEach(x => { h += `<tr><td>${x.name}</td><td>${x.expiry}</td><td>${x.status}</td></tr>`; });
-                document.getElementById("res").innerHTML = h + `</table>`;
-            });
+            }).catch(() => alert("Server Error! Check URL"));
         }
     </script>
 </body>
