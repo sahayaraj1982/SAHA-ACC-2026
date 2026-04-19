@@ -1,130 +1,20 @@
-<!DOCTYPE html>
-<html lang="ta">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAHAYARAJ LOGIN</title>
-
-<style>
-body{
-    margin:0;
-    padding:0;
-    font-family:Arial,sans-serif;
-    background:#0f172a;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
-
-.login-box{
-    width:350px;
-    padding:30px;
-    border-radius:20px;
-    background:#1e293b;
-    border:2px solid #facc15;
-    box-shadow:0 0 20px #facc15;
-}
-
-h2{
-    text-align:center;
-    color:#facc15;
-    font-size:34px;
-    font-weight:bold;
-    margin-bottom:25px;
-    font-style:italic;
-}
-
-input{
-    width:100%;
-    padding:14px;
-    margin-bottom:15px;
-    border-radius:10px;
-    border:2px solid #facc15;
-    background:white;
-    color:black;
-    font-size:16px;
-    font-weight:bold;
-    box-sizing:border-box;
-    outline:none;
-}
-
-input::placeholder{
-    color:#777;
-}
-
-.show-pass{
-    color:white;
-    font-size:14px;
-    margin-bottom:15px;
-}
-
-button{
-    width:100%;
-    padding:14px;
-    background:#16a34a;
-    color:white;
-    border:none;
-    border-radius:10px;
-    font-size:20px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#15803d;
-}
-
-.error{
-    text-align:center;
-    margin-top:15px;
-    color:#f87171;
-    font-size:18px;
-    font-weight:bold;
-}
-</style>
-</head>
-<body>
-
-<div class="login-box">
-    <h2>SAHAYARAJ LOGIN</h2>
-
-    <input type="text" id="username" placeholder="USERNAME">
-    
-    <input type="password" id="password" placeholder="PASSWORD">
-
-    <div class="show-pass">
-        <input type="checkbox" onclick="togglePassword()" style="width:auto;">
-        Show Password
-    </div>
-
-    <button onclick="login()">LOGIN NOW ✅</button>
-
-    <div class="error" id="msg"></div>
-</div>
-
 <script>
-function togglePassword(){
-    const pass = document.getElementById("password");
-    pass.type = pass.type === "password" ? "text" : "password";
-}
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUpYObmYGUScSqoYfFmUlOevY3FGWTBEWT4zsqinOoC-R62HRz95sgK5WDc6qITjxr/exec";
 
 function login(){
     const user = document.getElementById("username").value;
     const pass = document.getElementById("password").value;
 
-    if(user === "admin" && pass === "1234"){
-        document.getElementById("msg").style.color = "#4ade80";
-        document.getElementById("msg").innerText = "Login Success!";
-        
-        // redirect example:
-        // window.location.href = "admin.html";
-    } else {
-        document.getElementById("msg").style.color = "#f87171";
-        document.getElementById("msg").innerText = "❌ தவறான விவரங்கள்!";
-    }
+    fetch(`${SCRIPT_URL}?action=getUsers`)
+    .then(res => res.json())
+    .then(data => {
+        const found = data.find(u => u.name === user && u.pass === pass);
+
+        if(found){
+            window.location.href = "app.html";
+        } else {
+            document.getElementById("msg").innerText = "Login Failed!";
+        }
+    });
 }
 </script>
-
-</body>
-</html>
