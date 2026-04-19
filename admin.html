@@ -1,96 +1,102 @@
 <!DOCTYPE html>
-<html lang="ta">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAHA ADMIN PANEL</title>
-<script src="https://cdn.tailwindcss.com"></script>
-
+<title>Admin</title>
 <style>
 body{
-    background: linear-gradient(135deg,#0f172a,#1e293b);
-    color:white;
-    font-family:sans-serif;
+ margin:0;
+ font-family:Arial;
+ background:#111827;
+ color:white;
+ padding:20px;
 }
-.gold-border{
-    border:2px solid #fbbf24;
-    box-shadow:0 0 15px #fbbf24;
+.box{
+ max-width:500px;
+ margin:auto;
+ background:#1f2937;
+ padding:20px;
+ border-radius:15px;
+ box-shadow:0 0 15px gold;
 }
-.card{
-    background:#1e293b;
-    border-radius:15px;
-    transition:0.3s;
+input{
+ width:100%;
+ padding:10px;
+ margin:10px 0;
+ border:none;
+ border-radius:8px;
+ box-sizing:border-box;
 }
-.card:hover{
-    transform:scale(1.02);
+button{
+ width:100%;
+ padding:10px;
+ background:#22c55e;
+ color:white;
+ border:none;
+ border-radius:8px;
+ margin-top:10px;
+}
+.user{
+ background:#374151;
+ padding:10px;
+ margin-top:10px;
+ border-radius:8px;
+}
+.del{
+ background:red;
+ margin-top:5px;
 }
 </style>
 </head>
-<body class="p-5">
+<body>
+<div class="box">
+<h2>ADMIN PANEL</h2>
 
-<div class="max-w-md mx-auto">
-    <h1 class="text-3xl font-black text-yellow-400 text-center mb-8 italic">
-        ADMIN DASHBOARD
-    </h1>
+<input type="text" id="newuser" placeholder="New Username">
+<input type="text" id="newpass" placeholder="New Password">
+<button onclick="addUser()">ADD USER</button>
 
-    <div id="userList" class="space-y-4">
-        <p class="text-center">தகவல்கள் சேகரிக்கப்படுகிறது...</p>
-    </div>
+<div id="users"></div>
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUpYObmYGUScSqoYfFmUlOevY3FGWTBEWT4zsqinOoC-R62HRz95sgK5WDc6qITjxr/exec";
+const BASE_URL = "YOUR_FIREBASE_URL/users";
 
-function loadUsers() {
-    fetch(`${SCRIPT_URL}?action=getUsers`)
-    .then(res => res.json())
-    .then(data => {
-        const container = document.getElementById("userList");
-        container.innerHTML = "";
-
-        data.forEach(user => {
-            let date = "";
-            if(user.expiry){
-                date = new Date(user.expiry).toISOString().split('T')[0];
-            }
-
-            container.innerHTML += `
-                <div class="card p-4 gold-border">
-                    <h3 class="font-bold text-xl text-yellow-400">${user.name}</h3>
-                    <p class="text-sm mb-2">தற்போதைய எக்ஸ்பயரி: ${date}</p>
-                    <input type="date" id="date-${user.name}" value="${date}" class="w-full p-2 rounded text-black mb-2">
-                    <button onclick="updateDate('${user.name}')" class="w-full bg-green-600 p-2 rounded font-bold hover:bg-green-700">
-                        UPDATE DATE
-                    </button>
-                </div>
-            `;
-        });
-    })
-    .catch(err => {
-        alert("Load Error: " + err);
-    });
+function loadUsers(){
+ fetch(BASE_URL+".json")
+ .then(res=>res.json())
+ .then(data=>{
+   let html="";
+   for(let key in data){
+     html+=`
+       <div class="user">
+         ${data[key].username}
+         <button class="del" onclick="deleteUser('${key}')">DELETE</button>
+       </div>
+     `;
+   }
+   document.getElementById("users").innerHTML=html;
+ });
 }
 
-function updateDate(username){
-    const newDate = document.getElementById(`date-${username}`).value;
+function addUser(){
+ let username=document.getElementById("newuser").value;
+ let password=document.getElementById("newpass").value;
 
-    fetch(`${SCRIPT_URL}?action=updateExpiry&username=${encodeURIComponent(username)}&expiry=${encodeURIComponent(newDate)}`)
-    .then(res => res.text())
-    .then(result => {
-        if(result === "success"){
-            alert(username + " expiry updated");
-            loadUsers();
-        } else {
-            alert("Update failed");
-        }
-    })
-    .catch(err => {
-        alert("Update Error: " + err);
-    });
+ fetch(BASE_URL+".json",{
+   method:"POST",
+   body:JSON.stringify({username,password})
+ }).then(()=>loadUsers());
 }
 
-window.onload = loadUsers;
+function deleteUser(key){
+ fetch(BASE_URL+"/"+key+".json",{
+   method:"DELETE"
+ }).then(()=>loadUsers());
+}
+
+loadUsers();
 </script>
-
 </body>
 </html>
