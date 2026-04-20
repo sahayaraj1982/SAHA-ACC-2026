@@ -30,7 +30,6 @@ button{
     background:#007bff;
     color:white;
     border:none;
-    cursor:pointer;
 }
 </style>
 </head>
@@ -46,23 +45,33 @@ button{
 <script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbyidj6tKGntNIbnrljwlbkY6eLkezhaZ6x7B4jMZyMhh9rfuzhKLnbQegcJMQVVy0Gw/exec";
 
-function login() {
+function login(){
     let userid = document.getElementById("userid").value;
     let password = document.getElementById("password").value;
 
     fetch(scriptURL)
     .then(res => res.json())
     .then(users => {
+
         let user = users.find(u =>
             u.userid === userid &&
             u.password === password
         );
 
-        if(user){
-            window.location.href = "app.html";
-        } else {
-            alert("Invalid Login");
+        if(!user){
+            alert("Invalid User ID or Password");
+            return;
         }
+
+        let today = new Date();
+        let expiry = new Date(user.expiry);
+
+        if(today > expiry){
+            alert("Your account has expired");
+            return;
+        }
+
+        window.location.href = "app.html";
     });
 }
 </script>
