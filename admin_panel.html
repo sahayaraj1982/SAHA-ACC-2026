@@ -100,7 +100,10 @@ table th{
 </div>
 
 <script>
+const scriptURL = "https://script.google.com/macros/s/AKfycbyidj6tKGntNIbnrljwlbkY6eLkezhaZ6x7B4jMZyMhh9rfuzhKLnbQegcJMQVVy0Gw/exec";
+
 let users = [];
+let editIndex = -1;
 
 function addUser(){
     let name = document.getElementById("name").value;
@@ -113,13 +116,32 @@ function addUser(){
         return;
     }
 
-    users.push({name,mobile,userid,password});
-    displayUsers();
+    let action = editIndex === -1 ? "add" : "edit";
 
-    document.getElementById("name").value = "";
-    document.getElementById("mobile").value = "";
-    document.getElementById("userid").value = "";
-    document.getElementById("password").value = "";
+    fetch(scriptURL,{
+        method:"POST",
+        body:JSON.stringify({
+            action: action,
+            name: name,
+            mobile: mobile,
+            userid: userid,
+            password: password
+        })
+    })
+    .then(res=>res.text())
+    .then(msg=>{
+        alert(msg);
+
+        if(editIndex === -1){
+            users.push({name,mobile,userid,password});
+        }else{
+            users[editIndex] = {name,mobile,userid,password};
+            editIndex = -1;
+        }
+
+        displayUsers();
+        clearForm();
+    });
 }
 
 function displayUsers(){
@@ -135,7 +157,7 @@ function displayUsers(){
             <td>${user.password}</td>
             <td>
                 <button class="action-btn edit" onclick="editUser(${index})">Edit</button>
-                <button class="action-btn delete" onclick="deleteUser(${index})">Delete</button>
+                <button class="action-btn delete" onclick="deleteUser('${user.userid}', ${index})">Delete</button>
             </td>
         </tr>`;
     });
@@ -149,13 +171,30 @@ function editUser(index){
     document.getElementById("userid").value = user.userid;
     document.getElementById("password").value = user.password;
 
-    users.splice(index,1);
-    displayUsers();
+    editIndex = index;
 }
 
-function deleteUser(index){
-    users.splice(index,1);
-    displayUsers();
+function deleteUser(userid,index){
+    fetch(scriptURL,{
+        method:"POST",
+        body:JSON.stringify({
+            action:"delete",
+            userid: userid
+        })
+    })
+    .then(res=>res.text())
+    .then(msg=>{
+        alert(msg);
+        users.splice(index,1);
+        displayUsers();
+    });
+}
+
+function clearForm(){
+    document.getElementById("name").value = "";
+    document.getElementById("mobile").value = "";
+    document.getElementById("userid").value = "";
+    document.getElementById("password").value = "";
 }
 </script>
 
