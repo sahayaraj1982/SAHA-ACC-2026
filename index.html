@@ -71,7 +71,10 @@ function login(){
             return;
         }
 
-        window.location.href = "app.html";
+        if(user){
+    sessionStorage.setItem("isAuth","true");
+    window.location.href = "app.html";
+}";
     });
 }
 </script>
