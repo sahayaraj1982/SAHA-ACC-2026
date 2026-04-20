@@ -2,168 +2,161 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>SAHA ADMIN PANEL</title>
+<title>Admin Panel</title>
 <style>
 body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
     margin:0;
-    font-family:Arial,sans-serif;
-    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    padding:20px;
 }
 .container{
-    max-width:900px;
-    margin:30px auto;
+    max-width:1000px;
+    margin:auto;
     background:#fff;
-    padding:25px;
-    border-radius:15px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.3);
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 h2{
     text-align:center;
-    color:#203a43;
+    margin-bottom:20px;
 }
-label{
-    font-weight:bold;
-    margin-top:10px;
-    display:block;
+.form-box{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:10px;
+    margin-bottom:20px;
 }
-input,select{
-    width:100%;
-    padding:12px;
-    margin-top:5px;
+.form-box input{
+    padding:10px;
     border:1px solid #ccc;
-    border-radius:8px;
-    box-sizing:border-box;
+    border-radius:6px;
 }
-button{
-    padding:12px;
-    margin-top:15px;
-    width:100%;
+.form-box button{
+    padding:10px;
     border:none;
-    border-radius:8px;
-    font-weight:bold;
-    cursor:pointer;
-}
-.save-btn{
-    background:#28a745;
-    color:white;
-}
-.refresh-btn{
     background:#007bff;
     color:white;
+    border-radius:6px;
+    cursor:pointer;
+}
+.form-box button:hover{
+    background:#0056b3;
 }
 table{
     width:100%;
-    margin-top:20px;
     border-collapse:collapse;
 }
-th,td{
+table th, table td{
     border:1px solid #ddd;
     padding:10px;
     text-align:center;
 }
-th{
-    background:#203a43;
+table th{
+    background:#007bff;
     color:white;
 }
-.del-btn{
-    background:#dc3545;
-    color:white;
+.action-btn{
     padding:6px 10px;
     border:none;
-    border-radius:6px;
+    border-radius:5px;
+    color:white;
+    cursor:pointer;
+}
+.edit{
+    background:orange;
+}
+.delete{
+    background:red;
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>SAHA MASTER CONTROL</h2>
+    <h2>User Management Panel</h2>
 
-    <label>User Login ID</label>
-    <input type="text" id="uName">
+    <div class="form-box">
+        <input type="text" id="name" placeholder="Name">
+        <input type="text" id="mobile" placeholder="Mobile Number">
+        <input type="text" id="userid" placeholder="User ID">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="addUser()">Add User</button>
+    </div>
 
-    <label>Password</label>
-    <input type="text" id="uPass">
-
-    <label>Mobile</label>
-    <input type="text" id="uMob">
-
-    <label>Expiry Date</label>
-    <input type="date" id="uExp">
-
-    <label>Status</label>
-    <select id="uStatus">
-        <option value="Active">Active</option>
-        <option value="Inactive">Inactive</option>
-    </select>
-
-    <button class="save-btn" onclick="saveUser()">SAVE / UPDATE</button>
-    <button class="refresh-btn" onclick="loadUsers()">REFRESH USERS</button>
-
-    <div id="result"></div>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Mobile</th>
+                <th>User ID</th>
+                <th>Password</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="userTable"></tbody>
+    </table>
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6z1oE7bvQB4NJX1-ygLGK-9ujIezDAqBNFogoGljtc4I-DmBOwI_0mZrCRIvyaFuL/exec";
+let users = [];
 
-function saveUser() {
-    const u = document.getElementById("uName").value;
-    const p = document.getElementById("uPass").value;
-    const m = document.getElementById("uMob").value;
-    const e = document.getElementById("uExp").value;
-    const s = document.getElementById("uStatus").value;
+function addUser(){
+    let name = document.getElementById("name").value;
+    let mobile = document.getElementById("mobile").value;
+    let userid = document.getElementById("userid").value;
+    let password = document.getElementById("password").value;
 
-    fetch(`${SCRIPT_URL}?action=saveUser&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}&mobile=${encodeURIComponent(m)}&expiry=${encodeURIComponent(e)}&status=${encodeURIComponent(s)}`)
-    .then(res => res.text())
-    .then(msg => {
-        alert("Saved Successfully");
-        loadUsers();
-    })
-    .catch(err => {
-        alert("Server Error: " + err);
-    });
+    if(!name || !mobile || !userid || !password){
+        alert("Fill all fields");
+        return;
+    }
+
+    users.push({name,mobile,userid,password});
+    displayUsers();
+
+    document.getElementById("name").value = "";
+    document.getElementById("mobile").value = "";
+    document.getElementById("userid").value = "";
+    document.getElementById("password").value = "";
 }
 
-function loadUsers() {
-    fetch(`${SCRIPT_URL}?action=getUsers`)
-    .then(res => res.json())
-    .then(data => {
-        let html = `
-        <table>
+function displayUsers(){
+    let table = document.getElementById("userTable");
+    table.innerHTML = "";
+
+    users.forEach((user,index)=>{
+        table.innerHTML += `
         <tr>
-            <th>User</th>
-            <th>Status</th>
-            <th>Expiry</th>
-            <th>Action</th>
+            <td>${user.name}</td>
+            <td>${user.mobile}</td>
+            <td>${user.userid}</td>
+            <td>${user.password}</td>
+            <td>
+                <button class="action-btn edit" onclick="editUser(${index})">Edit</button>
+                <button class="action-btn delete" onclick="deleteUser(${index})">Delete</button>
+            </td>
         </tr>`;
-
-        data.forEach(user => {
-            html += `
-            <tr>
-                <td>${user.name}</td>
-                <td>${user.status}</td>
-                <td>${user.expiry}</td>
-                <td>
-                    <button class="del-btn" onclick="deleteUser('${user.name}')">Delete</button>
-                </td>
-            </tr>`;
-        });
-
-        html += "</table>";
-        document.getElementById("result").innerHTML = html;
-    })
-    .catch(err => {
-        alert("Load Error: " + err);
     });
 }
 
-function deleteUser(name) {
-    fetch(`${SCRIPT_URL}?action=deleteUser&username=${encodeURIComponent(name)}`)
-    .then(res => res.text())
-    .then(msg => loadUsers());
+function editUser(index){
+    let user = users[index];
+
+    document.getElementById("name").value = user.name;
+    document.getElementById("mobile").value = user.mobile;
+    document.getElementById("userid").value = user.userid;
+    document.getElementById("password").value = user.password;
+
+    users.splice(index,1);
+    displayUsers();
 }
 
-loadUsers();
+function deleteUser(index){
+    users.splice(index,1);
+    displayUsers();
+}
 </script>
 
 </body>
