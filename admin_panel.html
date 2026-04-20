@@ -1,193 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Admin Panel</title>
-<style>
-body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#eef2f7;
-}
-.container{
-    width:95%;
-    max-width:1200px;
-    margin:30px auto;
-    background:#fff;
-    border-radius:15px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.15);
-    overflow:hidden;
-}
-.header{
-    background:#2563eb;
-    color:#fff;
-    padding:20px;
-    font-size:24px;
-    font-weight:bold;
-}
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-th,td{
-    padding:12px;
-    border:1px solid #ddd;
-    text-align:center;
-}
-th{
-    background:#dbeafe;
-}
-input{
-    width:95%;
-    padding:8px;
-    border:1px solid #bbb;
-    border-radius:6px;
-}
-button{
-    padding:8px 14px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    color:#fff;
-}
-.addBtn{background:#16a34a;}
-.editBtn{background:#f59e0b;}
-.delBtn{background:#dc2626;}
-</style>
-</head>
-<body>
-
-<div class="container">
-    <div class="header">User Management Panel</div>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Mobile</th>
-                <th>User ID</th>
-                <th>Password</th>
-                <th>Expiry Date</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><input type="text" id="name"></td>
-                <td><input type="text" id="mobile"></td>
-                <td><input type="text" id="userid"></td>
-                <td><input type="text" id="password"></td>
-                <td><input type="date" id="expiry"></td>
-                <td><button class="addBtn" onclick="addUser()">Add User</button></td>
-            </tr>
-        </tbody>
-    </table>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Mobile</th>
-                <th>User ID</th>
-                <th>Password</th>
-                <th>Expiry Date</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-        </thead>
-        <tbody id="userTable"></tbody>
-    </table>
-</div>
-
-<script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbzE9wjoCIVfjXmLpygXpAhVPKFUBvIw7sLeK668Lb0FZpJhDlRL6saBRislCCTHOa8/exec";
 
 function loadUsers(){
     fetch(scriptURL)
-    .then(res=>res.json())
-    .then(users=>{
-        let rows="";
-        users.forEach((u,i)=>{
-            rows += `
+    .then(response => response.json())
+    .then(users => {
+        let html = "";
+
+        users.forEach((u,i) => {
+            html += `
             <tr>
-                <td>${u.name || ""}</td>
-                <td>${u.mobile || ""}</td>
-                <td>${u.userid || ""}</td>
-                <td>${u.password || ""}</td>
-                <td>${u.expiry || ""}</td>
-                <td><button class="editBtn" onclick="editUser(${i},'${u.name}','${u.mobile}','${u.userid}','${u.password}','${u.expiry}')">Edit</button></td>
-                <td><button class="delBtn" onclick="deleteUser(${i})">Delete</button></td>
+                <td>${u.name}</td>
+                <td>${u.mobile}</td>
+                <td>${u.userid}</td>
+                <td>${u.password}</td>
+                <td>${u.expiry}</td>
             </tr>`;
         });
-        document.getElementById("userTable").innerHTML = rows;
+
+        document.getElementById("userTable").innerHTML = html;
     });
 }
 
-function addUser(){
-    const data = {
-        action:"add",
-        name:document.getElementById("name").value,
-        mobile:document.getElementById("mobile").value,
-        userid:document.getElementById("userid").value,
-        password:document.getElementById("password").value,
-        expiry:document.getElementById("expiry").value
-    };
-
-    fetch(scriptURL,{
-        method:"POST",
-        body:JSON.stringify(data)
-    })
-    .then(res=>res.text())
-    .then(msg=>{
-        alert("User Added Successfully");
-        loadUsers();
-    });
-}
-
-function editUser(index,name,mobile,userid,password,expiry){
-    const data = {
-        action:"edit",
-        index:index+2,
-        name:prompt("Name",name),
-        mobile:prompt("Mobile",mobile),
-        userid:prompt("User ID",userid),
-        password:prompt("Password",password),
-        expiry:prompt("Expiry",expiry)
-    };
-
-    fetch(scriptURL,{
-        method:"POST",
-        body:JSON.stringify(data)
-    })
-    .then(res=>res.text())
-    .then(msg=>{
-        alert("User Updated");
-        loadUsers();
-    });
-}
-
-function deleteUser(index){
-    if(!confirm("Delete this user?")) return;
-
-    const data = {
-        action:"delete",
-        index:index+2
-    };
-
-    fetch(scriptURL,{
-        method:"POST",
-        body:JSON.stringify(data)
-    })
-    .then(res=>res.text())
-    .then(msg=>{
-        alert("User Deleted");
-        loadUsers();
-    });
-}
-
-loadUsers();
-</script>
-
-</body>
-</html>
+window.onload = loadUsers;
