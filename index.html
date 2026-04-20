@@ -1,1 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>User Login</title>
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f0f2f5;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+}
+.login-box{
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 0 15px rgba(0,0,0,0.1);
+    width:320px;
+}
+.login-box h2{
+    text-align:center;
+    margin-bottom:20px;
+}
+.login-box input{
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+    border:1px solid #ccc;
+    border-radius:6px;
+}
+.login-box button{
+    width:100%;
+    padding:10px;
+    background:#007bff;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+.login-box button:hover{
+    background:#0056b3;
+}
+</style>
+</head>
+<body>
 
+<div class="login-box">
+    <h2>User Login</h2>
+    <input type="text" id="userid" placeholder="User ID">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+</div>
+
+<script>
+const scriptURL = "https://script.google.com/macros/s/AKfycbyidj6tKGntNIbnrljwlbkY6eLkezhaZ6x7B4jMZyMhh9rfuzhKLnbQegcJMQVVy0Gw/exec";
+
+function login(){
+    let userid = document.getElementById("userid").value.trim();
+    let password = document.getElementById("password").value.trim();
+
+    fetch(scriptURL)
+    .then(response => response.json())
+    .then(users => {
+        let user = users.find(u => u.userid === userid && u.password === password);
+
+        if(user){
+            localStorage.setItem("loggedUser", user.userid);
+            localStorage.setItem("loggedName", user.name);
+
+            window.location.href = "app.html";
+        }else{
+            alert("Invalid User ID or Password");
+        }
+    })
+    .catch(error => {
+        alert("Login error");
+        console.error(error);
+    });
+}
+</script>
+
+</body>
+</html>
