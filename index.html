@@ -1,77 +1,90 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>SAHA ADMIN SYSTEM</title>
-    <style>
-        body { background: #f4f4f4; color: #000; font-family: sans-serif; padding: 20px; }
-        .box { background: #fff; border: 2px solid #000; padding: 20px; border-radius: 8px; max-width: 800px; margin: auto; }
-        label { font-weight: bold; display: block; margin-top: 10px; }
-        /* எழுத்து கருப்பாக தெரிய வெள்ளை பின்னணி */
-        input, select { 
-            width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #333; 
-            background: #ffffff !important; color: #000000 !important; 
-            font-size: 16px; font-weight: bold; box-sizing: border-box;
-        }
-        .btn { background: #000; color: #fff; padding: 15px; width: 100%; border: none; cursor: pointer; margin-top: 15px; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #333; padding: 10px; text-align: left; color: #000; }
-        th { background: #eee; }
-        .del-btn { background: #ff4444; color: #fff; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
-    </style>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input { margin: 5px 0; padding: 10px; width: 90%; }
+    button { padding: 10px; cursor: pointer; margin: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    .edit-btn { background: #4CAF50; color: white; }
+    .del-btn { background: #f44336; color: white; }
+  </style>
 </head>
 <body>
-    <div class="box">
-        <h2 style="text-align: center;">SAHA MASTER ADMIN</h2>
-        <label>User ID:</label>
-        <input type="text" id="uName">
-        <label>Password:</label>
-        <input type="text" id="uPass">
-        <label>Mobile:</label>
-        <input type="text" id="uMob">
-        <label>Expiry Date (dd-mm-yyyy):</label>
-        <input type="date" id="uExp">
-        <label>Status:</label>
-        <select id="uStatus">
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-        </select>
-        <button onclick="saveUser()" class="btn">SAVE / UPDATE ✅</button>
-        <button onclick="loadUsers()" class="btn" style="background:#444;">REFRESH LIST 👥</button>
-    </div>
-    <div id="resArea" style="max-width: 800px; margin: auto;"></div>
+  <h3>வாடிக்கையாளர் மேலாண்மை (Admin UI)</h3>
+  <input type="text" id="name" placeholder="பெயர்">
+  <input type="text" id="mobile" placeholder="மொபைல் எண்">
+  <input type="text" id="userID" placeholder="யூசர் ஐடி">
+  <input type="password" id="password" placeholder="பாஸ்வேர்ட்">
+  <br>
+  <button onclick="saveData()">சேமி / மாற்று (Save/Update)</button>
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6z1oE7bvQB4NJX1-ygLGK-9ujIezDAqBNFogoGljtc4I-DmBOwI_0mZrCRIvyaFuL/exec";
+  <table id="userTable">
+    <thead>
+      <tr>
+        <th>பெயர்</th><th>மொபைல்</th><th>ஐடி</th><th>செயல்</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
 
-        function saveUser() {
-            const u = document.getElementById("uName").value;
-            const p = document.getElementById("uPass").value;
-            const m = document.getElementById("uMob").value;
-            const e = document.getElementById("uExp").value;
-            const s = document.getElementById("uStatus").value;
-            if(!u) return alert("ID கட்டாயம்!");
-
-            fetch(`${SCRIPT_URL}?action=saveUser&username=${u}&password=${p}&mobile=${m}&expiry=${e}&status=${s}`)
-            .then(() => { alert("சேமிக்கப்பட்டது! ✅"); loadUsers(); });
-        }
-
-        function loadUsers() {
-            document.getElementById("resArea").innerHTML = "Loading...";
-            fetch(`${SCRIPT_URL}?action=getUsers`).then(res => res.json()).then(data => {
-                let h = `<table><tr><th>ID</th><th>Expiry</th><th>Action</th></tr>`;
-                data.forEach(x => {
-                    h += `<tr><td>${x.name}</td><td>${x.expiry}</td>
-                    <td><button class="del-btn" onclick="deleteUser('${x.name}')">Delete</button></td></tr>`;
-                });
-                document.getElementById("resArea").innerHTML = h + `</table>`;
-            }).catch(() => alert("சர்வர் பிழை! URL-ஐச் சரிபார்க்கவும்."));
-        }
-
-        function deleteUser(n) {
-            if(confirm(n + " நீக்கவா?")) fetch(`${SCRIPT_URL}?action=deleteUser&username=${n}`).then(() => loadUsers());
-        }
+  <script>
+    function saveData() {
+      var data = {
+        name: document.getElementById('name').value,
+        mobile: document.getElementById('mobile').value,
+        userID: document.getElementById('userID').value,
+        password: document.getElementById('password').value
+      };
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res);
         loadUsers();
-    </script>
+        clearFields();
+      }).saveUser(data);
+    }
+
+    function loadUsers() {
+      google.script.run.withSuccessHandler(function(users) {
+        var tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+        for(var i=1; i<users.length; i++) {
+          var row = `<tr>
+            <td>${users[i][0]}</td><td>${users[i][1]}</td><td>${users[i][2]}</td>
+            <td>
+              <button class="edit-btn" onclick="editRow('${users[i][0]}','${users[i][1]}','${users[i][2]}','${users[i][3]}')">Edit</button>
+              <button class="del-btn" onclick="deleteRow('${users[i][2]}')">Delete</button>
+            </td>
+          </tr>`;
+          tbody.innerHTML += row;
+        }
+      }).getUsers();
+    }
+
+    function editRow(n, m, u, p) {
+      document.getElementById('name').value = n;
+      document.getElementById('mobile').value = m;
+      document.getElementById('userID').value = u;
+      document.getElementById('password').value = p;
+    }
+
+    function deleteRow(id) {
+      if(confirm('நிச்சயமாக நீக்க வேண்டுமா?')) {
+        google.script.run.withSuccessHandler(function(res) {
+          alert(res);
+          loadUsers();
+        }).deleteUser(id);
+      }
+    }
+
+    function clearFields() {
+      document.getElementById('name').value = "";
+      document.getElementById('mobile').value = "";
+      document.getElementById('userID').value = "";
+      document.getElementById('password').value = "";
+    }
+
+    window.onload = loadUsers;
+  </script>
 </body>
 </html>
