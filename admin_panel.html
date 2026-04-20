@@ -5,85 +5,51 @@
 <title>Admin Panel</title>
 <style>
 body{
-    font-family: Arial, sans-serif;
-    background:#f4f6f9;
-    margin:0;
+    font-family: Arial,sans-serif;
+    background:#f2f2f2;
     padding:20px;
 }
 .container{
-    max-width:1000px;
+    max-width:900px;
     margin:auto;
     background:#fff;
     padding:20px;
     border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
-h2{
-    text-align:center;
-    margin-bottom:20px;
-}
-.form-box{
-    display:grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap:10px;
-    margin-bottom:20px;
-}
-.form-box input{
+input{
+    width:23%;
     padding:10px;
-    border:1px solid #ccc;
-    border-radius:6px;
+    margin:5px;
 }
-.form-box button{
-    padding:10px;
-    border:none;
-    background:#007bff;
-    color:white;
-    border-radius:6px;
+button{
+    padding:10px 20px;
+    margin:5px;
     cursor:pointer;
-}
-.form-box button:hover{
-    background:#0056b3;
 }
 table{
     width:100%;
+    margin-top:20px;
     border-collapse:collapse;
 }
-table th, table td{
-    border:1px solid #ddd;
+table, th, td{
+    border:1px solid #ccc;
+}
+th, td{
     padding:10px;
     text-align:center;
-}
-table th{
-    background:#007bff;
-    color:white;
-}
-.action-btn{
-    padding:6px 10px;
-    border:none;
-    border-radius:5px;
-    color:white;
-    cursor:pointer;
-}
-.edit{
-    background:orange;
-}
-.delete{
-    background:red;
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>User Management Panel</h2>
+    <h2>User Management</h2>
 
-    <div class="form-box">
-        <input type="text" id="name" placeholder="Name">
-        <input type="text" id="mobile" placeholder="Mobile Number">
-        <input type="text" id="userid" placeholder="User ID">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="addUser()">Add User</button>
-    </div>
+    <input type="text" id="name" placeholder="Name">
+    <input type="text" id="mobile" placeholder="Mobile">
+    <input type="text" id="userid" placeholder="User ID">
+    <input type="text" id="password" placeholder="Password">
+    <button onclick="addUser()">Add User</button>
 
     <table>
         <thead>
@@ -92,7 +58,6 @@ table th{
                 <th>Mobile</th>
                 <th>User ID</th>
                 <th>Password</th>
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody id="userTable"></tbody>
@@ -102,100 +67,48 @@ table th{
 <script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbyidj6tKGntNIbnrljwlbkY6eLkezhaZ6x7B4jMZyMhh9rfuzhKLnbQegcJMQVVy0Gw/exec";
 
-let users = [];
-let editIndex = -1;
-
-function addUser(){
+function addUser() {
     let name = document.getElementById("name").value;
     let mobile = document.getElementById("mobile").value;
     let userid = document.getElementById("userid").value;
     let password = document.getElementById("password").value;
 
-    if(!name || !mobile || !userid || !password){
-        alert("Fill all fields");
-        return;
-    }
-
-    let action = editIndex === -1 ? "add" : "edit";
-
-    fetch(scriptURL,{
-        method:"POST",
-        body:JSON.stringify({
-            action: action,
+    fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify({
+            action: "add",
             name: name,
             mobile: mobile,
             userid: userid,
             password: password
         })
     })
-    .then(res=>res.text())
-    .then(msg=>{
+    .then(res => res.text())
+    .then(msg => {
         alert(msg);
-
-        if(editIndex === -1){
-            users.push({name,mobile,userid,password});
-        }else{
-            users[editIndex] = {name,mobile,userid,password};
-            editIndex = -1;
-        }
-
-        displayUsers();
-        clearForm();
+        loadUsers();
     });
 }
 
-function displayUsers(){
-    let table = document.getElementById("userTable");
-    table.innerHTML = "";
-
-    users.forEach((user,index)=>{
-        table.innerHTML += `
-        <tr>
-            <td>${user.name}</td>
-            <td>${user.mobile}</td>
-            <td>${user.userid}</td>
-            <td>${user.password}</td>
-            <td>
-                <button class="action-btn edit" onclick="editUser(${index})">Edit</button>
-                <button class="action-btn delete" onclick="deleteUser('${user.userid}', ${index})">Delete</button>
-            </td>
-        </tr>`;
+function loadUsers() {
+    fetch(scriptURL)
+    .then(res => res.json())
+    .then(data => {
+        let rows = "";
+        data.forEach(user => {
+            rows += `
+            <tr>
+                <td>${user.name}</td>
+                <td>${user.mobile}</td>
+                <td>${user.userid}</td>
+                <td>${user.password}</td>
+            </tr>`;
+        });
+        document.getElementById("userTable").innerHTML = rows;
     });
 }
 
-function editUser(index){
-    let user = users[index];
-
-    document.getElementById("name").value = user.name;
-    document.getElementById("mobile").value = user.mobile;
-    document.getElementById("userid").value = user.userid;
-    document.getElementById("password").value = user.password;
-
-    editIndex = index;
-}
-
-function deleteUser(userid,index){
-    fetch(scriptURL,{
-        method:"POST",
-        body:JSON.stringify({
-            action:"delete",
-            userid: userid
-        })
-    })
-    .then(res=>res.text())
-    .then(msg=>{
-        alert(msg);
-        users.splice(index,1);
-        displayUsers();
-    });
-}
-
-function clearForm(){
-    document.getElementById("name").value = "";
-    document.getElementById("mobile").value = "";
-    document.getElementById("userid").value = "";
-    document.getElementById("password").value = "";
-}
+loadUsers();
 </script>
 
 </body>
