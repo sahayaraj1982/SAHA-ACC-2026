@@ -5,43 +5,32 @@
 <title>User Login</title>
 <style>
 body{
-    font-family: Arial, sans-serif;
-    background:#f0f2f5;
+    font-family:Arial,sans-serif;
+    background:#f2f2f2;
     display:flex;
     justify-content:center;
     align-items:center;
     height:100vh;
-    margin:0;
 }
 .login-box{
-    background:white;
+    background:#fff;
     padding:30px;
     border-radius:10px;
-    box-shadow:0 0 15px rgba(0,0,0,0.1);
-    width:320px;
+    width:300px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
-.login-box h2{
-    text-align:center;
-    margin-bottom:20px;
-}
-.login-box input{
+input{
     width:100%;
     padding:10px;
-    margin:8px 0;
-    border:1px solid #ccc;
-    border-radius:6px;
+    margin:10px 0;
 }
-.login-box button{
+button{
     width:100%;
     padding:10px;
     background:#007bff;
     color:white;
     border:none;
-    border-radius:6px;
     cursor:pointer;
-}
-.login-box button:hover{
-    background:#0056b3;
 }
 </style>
 </head>
@@ -57,27 +46,23 @@ body{
 <script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbyidj6tKGntNIbnrljwlbkY6eLkezhaZ6x7B4jMZyMhh9rfuzhKLnbQegcJMQVVy0Gw/exec";
 
-function login(){
-    let userid = document.getElementById("userid").value.trim();
-    let password = document.getElementById("password").value.trim();
+function login() {
+    let userid = document.getElementById("userid").value;
+    let password = document.getElementById("password").value;
 
     fetch(scriptURL)
-    .then(response => response.json())
+    .then(res => res.json())
     .then(users => {
-        let user = users.find(u => u.userid === userid && u.password === password);
+        let user = users.find(u =>
+            u.userid === userid &&
+            u.password === password
+        );
 
         if(user){
-            localStorage.setItem("loggedUser", user.userid);
-            localStorage.setItem("loggedName", user.name);
-
             window.location.href = "app.html";
-        }else{
-            alert("Invalid User ID or Password");
+        } else {
+            alert("Invalid Login");
         }
-    })
-    .catch(error => {
-        alert("Login error");
-        console.error(error);
     });
 }
 </script>
