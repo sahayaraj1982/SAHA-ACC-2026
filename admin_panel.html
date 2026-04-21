@@ -1,24 +1,119 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbzE9wjoCIVfjXmLpygXpAhVPKFUBvIw7sLeK668Lb0FZpJhDlRL6saBRislCCTHOa8/exec";
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAHA ADMIN PANEL</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1a73e8; }
+        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+        .full-width { grid-column: span 2; }
+        button { padding: 12px; cursor: pointer; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; }
+        .save-btn { background-color: #28a745; color: white; width: 100%; font-size: 16px; }
+        .save-btn:hover { background-color: #218838; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
+        th { background-color: #1a73e8; color: white; }
+        .del-btn { background-color: #dc3545; color: white; padding: 6px 12px; }
+        .del-btn:hover { background-color: #c82333; }
+        #loading { text-align: center; display: none; color: #666; }
+    </style>
+</head>
+<body>
 
-function loadUsers(){
-    fetch(scriptURL)
-    .then(response => response.json())
-    .then(users => {
-        let html = "";
+<div class="container">
+    <h2>SAHA ADMIN PANEL</h2>
+    
+    <div class="input-group">
+        <input type="text" id="name" placeholder="வாடிக்கையாளர் பெயர்">
+        <input type="text" id="mobile" placeholder="மொபைல் எண்">
+        <input type="text" id="userID" placeholder="யூசர் ஐடி">
+        <input type="text" id="password" placeholder="பாஸ்வேர்டு">
+        <input type="date" id="expiry" class="full-width">
+        <button class="save-btn full-width" onclick="saveData()">புதிய பயனரைச் சேமி</button>
+    </div>
 
-        users.forEach((u,i) => {
-            html += `
+    <div id="loading">செயல்படுகிறது... தயவுசெய்து காத்திருக்கவும்...</div>
+
+    <table>
+        <thead>
             <tr>
-                <td>${u.name}</td>
-                <td>${u.mobile}</td>
-                <td>${u.userid}</td>
-                <td>${u.password}</td>
-                <td>${u.expiry}</td>
-            </tr>`;
-        });
+                <th>பெயர்</th>
+                <th>ஐடி</th>
+                <th>முடிவுத் தேதி</th>
+                <th>செயல்</th>
+            </tr>
+        </thead>
+        <tbody id="userList"></tbody>
+    </table>
+</div>
 
-        document.getElementById("userTable").innerHTML = html;
-    });
-}
+<script>
+    // உங்கள் கூகுள் ஸ்கிரிப்ட் URL
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz8HoGpJ1yufIa0PnY2aZcrxxZp3nCSYAEhisU8NmwVhVm1FQM_No7Zr_gW7VeDEAXTWQ/exec';
 
-window.onload = loadUsers;
+    function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+    }
+
+    // தரவுகளைச் சேமிக்க
+    async function saveData() {
+        const data = {
+            action: 'save',
+            name: document.getElementById('name').value,
+            mobile: document.getElementById('mobile').value,
+            userID: document.getElementById('userID').value,
+            password: document.getElementById('password').value,
+            expiry: document.getElementById('expiry').value
+        };
+
+        if(!data.name || !data.userID) return alert('பெயர் மற்றும் ஐடி கட்டாயம்!');
+
+        showLoading(true);
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(data)
+        }).then(() => {
+            alert('வெற்றிகரமாகச் சேமிக்கப்பட்டது!');
+            location.reload();
+        }).catch(err => alert('பிழை: ' + err));
+    }
+
+    // தரவுகளைப் பட்டியலிட (நேரடியாக கூகுள் ஸ்கிரிப்ட் மூலம்)
+    window.onload = function() {
+        showLoading(true);
+        fetch(scriptURL + '?action=read')
+            .then(res => res.json())
+            .then(users => {
+                let html = '';
+                for(let i=1; i<users.length; i++) {
+                    html += `<tr>
+                        <td>${users[i][0]}</td>
+                        <td>${users[i][2]}</td>
+                        <td>${users[i][4]}</td>
+                        <td><button class="del-btn" onclick="deleteUser('${users[i][2]}')">Delete</button></td>
+                    </tr>`;
+                }
+                document.getElementById('userList').innerHTML = html;
+                showLoading(false);
+            });
+    }
+
+    // தரவை நீக்க
+    function deleteUser(id) {
+        if(!confirm('நிச்சயமாக நீக்க வேண்டுமா?')) return;
+        showLoading(true);
+        fetch(scriptURL + '?action=delete&id=' + id)
+            .then(() => {
+                alert('நீக்கப்பட்டது!');
+                location.reload();
+            });
+    }
+</script>
+
+</body>
+</html>
